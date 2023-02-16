@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import security.project.global.audit.BaseEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -28,6 +30,9 @@ public class Member extends BaseEntity
     @Column(nullable = false)
     private int age;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
+
     @Builder
     public Member(String email, String password, String nickname, int age)
     {
@@ -37,6 +42,8 @@ public class Member extends BaseEntity
         this.age = age;
     }
 
+
+    //=============회원 정보 수정=============//
     public void changeNickname(String nickname)
     {
         this.nickname = nickname;
@@ -45,5 +52,27 @@ public class Member extends BaseEntity
     public void changeAge(int age)
     {
         this.age = age;
+    }
+
+
+    //=============Security=============//
+    public void setMemberId(Long memberId)
+    {
+        this.memberId = memberId;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public void setRoles(List<String> roles)
+    {
+        this.roles = roles;
     }
 }
