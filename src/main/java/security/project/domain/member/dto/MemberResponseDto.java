@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor
 public class MemberResponseDto
 {
-    private Long id;
+    private Long memberId;
 
     private String email;
 
@@ -19,5 +21,7 @@ public class MemberResponseDto
     private String nickname;
 
     private int age;
+
+    private LocalDateTime createdAt;
 
 }

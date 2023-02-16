@@ -30,11 +30,12 @@ public class MemberMapper
             return null;
 
         MemberResponseDto response = MemberResponseDto.builder()
-                .id(entity.getMemberId())
+                .memberId(entity.getMemberId())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .nickname(entity.getNickname())
                 .age(entity.getAge())
+                .createdAt(entity.getCreatedAt())
                 .build();
 
         return response;
