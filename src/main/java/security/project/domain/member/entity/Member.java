@@ -1,15 +1,13 @@
 package security.project.domain.member.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import security.project.global.audit.BaseEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -52,27 +50,5 @@ public class Member extends BaseEntity
     public void changeAge(int age)
     {
         this.age = age;
-    }
-
-
-    //=============Security=============//
-    public void setMemberId(Long memberId)
-    {
-        this.memberId = memberId;
-    }
-
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public void setRoles(List<String> roles)
-    {
-        this.roles = roles;
     }
 }
