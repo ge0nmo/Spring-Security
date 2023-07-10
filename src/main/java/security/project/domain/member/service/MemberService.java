@@ -1,6 +1,7 @@
 package security.project.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +42,23 @@ public class MemberService
                 .orElseThrow(() -> new RuntimeException("Member Not Found"));
     }
 
+    public void deleteMember(Long memberId)
+    {
+        verifyExistMember(memberId);
+
+        memberRepository.deleteById(memberId);
+    }
+
     private void verifyEmail(String email)
     {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
 
         if(optionalMember.isPresent())
             throw new RuntimeException("Email is already used");
+    }
+
+    public void verifyExistMember(Long id)
+    {
+        memberRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("user not found"));
     }
 }

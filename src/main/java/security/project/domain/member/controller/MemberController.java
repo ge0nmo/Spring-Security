@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import security.project.domain.member.dto.MemberPostDto;
@@ -43,5 +44,14 @@ public class MemberController
         MemberResponseDto response = mapper.memberToResponse(member);
 
         return new ResponseEntity(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize(value = "USER")
+    @DeleteMapping("/{member-id}")
+    public ResponseEntity deleteMember(@PathVariable("member-id") @Positive Long memberId)
+    {
+        memberService.deleteMember(memberId);
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

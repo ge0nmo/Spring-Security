@@ -2,7 +2,6 @@ package security.project.global.security.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ public class AuthController
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto)
     {
         String email = loginDto.getUsername();
-        String password = loginDto.getPassword();
 
         authService.login(email);
 
@@ -41,6 +39,7 @@ public class AuthController
     {
         String newAccessToken = authService.reissue(accessToken, refreshToken);
 
+        log.info("new access token = {}", newAccessToken);
         return new ResponseEntity<>(newAccessToken, HttpStatus.OK);
     }
 }

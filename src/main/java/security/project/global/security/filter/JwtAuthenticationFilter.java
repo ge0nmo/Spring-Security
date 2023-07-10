@@ -18,9 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,12 +63,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .collect(Collectors.toList());
 
         log.info("===successfulAuthentication===");
-        log.info("autohrities = {}", authResult.getAuthorities());
+        log.info("authorities = {}", authResult.getAuthorities());
         String accessToken = jwtTokenizer.generateAccessToken(email, roles);
         String refreshToken = jwtTokenizer.generateRefreshToken(email);
 
         redisRepository.saveRefreshToken(refreshToken, email);
-
 
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.setHeader("Refresh", refreshToken);

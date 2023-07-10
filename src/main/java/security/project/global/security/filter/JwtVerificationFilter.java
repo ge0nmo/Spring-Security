@@ -4,13 +4,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import security.project.global.security.auth.service.AuthService;
 import security.project.global.security.jwt.JwtTokenizer;
 import security.project.global.security.utils.CustomAuthorityUtils;
 
@@ -20,8 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
+@Slf4j
 @RequiredArgsConstructor
 public class JwtVerificationFilter extends OncePerRequestFilter
 {
@@ -30,10 +32,14 @@ public class JwtVerificationFilter extends OncePerRequestFilter
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
-        String accessToken = resolveAccessToken(request);
+        log.info("===doFilterInternal===");
+
         try {
+            String accessToken = resolveAccessToken(request);
             jwtTokenizer.isValidToken(accessToken);
             setAuthenticationToContext(jwtTokenizer.getClaims(accessToken));
+
+            log.info("accessToken = {}", accessToken);
         } catch (SignatureException se)
         {
             request.setAttribute("exception", se);
@@ -49,18 +55,16 @@ public class JwtVerificationFilter extends OncePerRequestFilter
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException
     {
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader(AUTHORIZATION);
+        log.info("===shouldNotFilter===");
+        log.info("authorization = {}", authorization);
 
-        return authorization == null || !authorization.startsWith("Bearer");
+        return authorization == null || !authorization.startsWith("Bearer ");
     }
-
-
 
     private void setAuthenticationToContext(Claims claims)
     {
         String email = claims.getSubject();
-        List roles = (List) claims.get("roles");
-
         List<GrantedAuthority> authorities = authorityUtils.createAuthorities((List) claims.get("roles"));
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -68,6 +72,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter
 
     private String resolveAccessToken(HttpServletRequest request)
     {
-        return request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        return request.getHeader(AUTHORIZATION).substring(7);
     }
 }

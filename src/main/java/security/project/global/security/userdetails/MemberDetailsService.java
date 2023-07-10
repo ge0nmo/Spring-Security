@@ -1,6 +1,7 @@
 package security.project.global.security.userdetails;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,7 @@ import security.project.global.security.utils.CustomAuthorityUtils;
 import java.util.Collection;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class MemberDetailsService implements UserDetailsService
@@ -42,6 +44,9 @@ public class MemberDetailsService implements UserDetailsService
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities()
         {
+            log.info("===getAuthorities===");
+            log.info("roles = {}", this.getRoles());
+
             return authorityUtils.createAuthorities(this.getRoles());
         }
 

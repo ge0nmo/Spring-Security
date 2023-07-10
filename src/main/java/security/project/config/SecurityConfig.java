@@ -49,10 +49,11 @@ public class SecurityConfig
                 .apply(new CustomFilterConfigure())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
-                        .antMatchers(HttpMethod.POST, "/members").permitAll()
-                        .antMatchers(HttpMethod.PATCH, "/members/**").hasRole("USER")
-                        .antMatchers(HttpMethod.GET, "/members/**").permitAll()
-                        .antMatchers(HttpMethod.DELETE, "/members/**").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.POST, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.PATCH, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.POST, "/members/reissue").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET).permitAll()
+                        .antMatchers(HttpMethod.DELETE, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
                         .anyRequest().permitAll()
                 );
 

@@ -3,19 +3,13 @@ package security.project.global.security.auth.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import security.project.domain.member.entity.Member;
-import security.project.domain.member.repository.MemberRepository;
 import security.project.global.security.auth.repository.RedisRepository;
 import security.project.global.security.jwt.JwtTokenizer;
 
-import javax.security.auth.RefreshFailedException;
 import java.util.List;
 
 @Slf4j
@@ -58,7 +52,7 @@ public class AuthService
             return jwtTokenizer.generateAccessToken(email, roles);
         }
 
-        throw new JwtException("token expired");
+        throw new RuntimeException("token expired");
     }
 
     private Boolean hasKey(String refreshToken)
