@@ -46,7 +46,6 @@ public class MemberController
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "USER")
     @DeleteMapping("/{member-id}")
     public ResponseEntity deleteMember(@PathVariable("member-id") @Positive Long memberId)
     {

@@ -25,6 +25,7 @@ import security.project.global.security.jwt.JwtTokenizer;
 import security.project.global.security.utils.CustomAuthorityUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -49,11 +50,12 @@ public class SecurityConfig
                 .apply(new CustomFilterConfigure())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
-                        .antMatchers(HttpMethod.POST, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.PATCH, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.POST, "/members/reissue").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.POST, "/members").permitAll()
+                        .antMatchers(HttpMethod.POST, "members/**").hasRole("USER")
+                        .antMatchers(HttpMethod.PATCH, "/members/**").hasRole("USER")
+                        .antMatchers(HttpMethod.POST, "/members/reissue").hasRole("USER")
                         .antMatchers(HttpMethod.GET).permitAll()
-                        .antMatchers(HttpMethod.DELETE, "/members/{memberId}").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.DELETE, "/members/**").hasRole("USER")
                         .anyRequest().permitAll()
                 );
 
@@ -74,8 +76,10 @@ public class SecurityConfig
         configuration.setAllowedOrigins(Arrays.asList("/*"));
 
         //해당 HttpMethod 통신 허용
+        configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
-
+        configuration.setExposedHeaders(List.of("Authorization", "Refresh"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 

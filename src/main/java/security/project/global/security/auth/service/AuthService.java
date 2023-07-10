@@ -45,7 +45,11 @@ public class AuthService
     {
         if(hasKey(refreshToken))
         {
-            Claims claims = jwtTokenizer.getClaims(accessToken);
+            log.info("===reissue===");
+            log.info("accessToken = {}", accessToken);
+            log.info("refreshToken = {}", refreshToken);
+
+            Claims claims = jwtTokenizer.getClaims(accessToken.substring(7));
             String email = claims.getSubject();
             List roles = (List) claims.get("roles");
 

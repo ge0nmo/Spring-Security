@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.*;
 @Component
 public class JwtTokenizer
 {
-    private Key secretKey;
+    private SecretKey secretKey;
     private int accessTokenExpirationMinutes;
     private int refreshTokenExpirationMinutes;
 
@@ -26,7 +27,7 @@ public class JwtTokenizer
                         @Value("${jwt.access-token-expiration-minutes}")int accessTokenExpirationMinutes,
                         @Value("${jwt.refresh-token-expiration-minutes}")int refreshTokenExpirationMinutes)
     {
-        this.secretKey = getKeyFromBase64EncodedKey(encodedBase64SecretKey(secretKey));
+        this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpirationMinutes = accessTokenExpirationMinutes;
         this.refreshTokenExpirationMinutes = refreshTokenExpirationMinutes;
     }
