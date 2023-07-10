@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -19,6 +21,7 @@ public class MemberResponseDto
     private String password;
 
     private String nickname;
+    private List<String> roles = new ArrayList<>();
 
     private int age;
 

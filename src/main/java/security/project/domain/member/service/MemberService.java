@@ -29,7 +29,7 @@ public class MemberService
         member.setPassword(encodedPassword);
 
         List<String> roles = authorityUtils.createRoles(member.getEmail());
-        member.setRoles(member.getRoles());
+        member.setRoles(roles);
 
         return memberRepository.save(member);
     }

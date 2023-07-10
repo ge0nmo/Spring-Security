@@ -1,89 +1,113 @@
 package security.project.global.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
+@Getter
 @Component
 public class JwtTokenizer
 {
-    @Getter
-    @Value("${jwt.key}")
-    private String secretKey;
-
-    @Getter
-    @Value("${jwt.access-token-expiration-minutes}")
+    private Key secretKey;
     private int accessTokenExpirationMinutes;
-
-    @Getter
-    @Value("${jwt.refresh-token-expiration-minutes}")
     private int refreshTokenExpirationMinutes;
+
+    public JwtTokenizer(@Value("${jwt.key}")String secretKey,
+                        @Value("${jwt.access-token-expiration-minutes}")int accessTokenExpirationMinutes,
+                        @Value("${jwt.refresh-token-expiration-minutes}")int refreshTokenExpirationMinutes)
+    {
+        this.secretKey = getKeyFromBase64EncodedKey(encodedBase64SecretKey(secretKey));
+        this.accessTokenExpirationMinutes = accessTokenExpirationMinutes;
+        this.refreshTokenExpirationMinutes = refreshTokenExpirationMinutes;
+    }
 
     public String encodedBase64SecretKey(String secretKey)
     {
         return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(Map<String, Object> claims,
-                                      String subject,
-                                      Date expiration,
-                                      String base64EncodedSecretKey)
+    public String generateAccessToken(String email, List<String> roles)
     {
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("roles", roles);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .setSubject(email)
                 .setIssuedAt(Calendar.getInstance().getTime())
-                .setExpiration(expiration)
-                .signWith(key)
+                .setExpiration(getTokenExpiration(accessTokenExpirationMinutes))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(String subject, Date expiration, String base64EncodedSecretKey)
+    public String generateRefreshToken(String email)
     {
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject(email)
                 .setIssuedAt(Calendar.getInstance().getTime())
-                .setExpiration(expiration)
-                .signWith(key)
+                .setExpiration(getTokenExpiration(refreshTokenExpirationMinutes))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Jws<Claims> getClaims(String jws, String base64EncodedSecretKey)
+    public String getUserEmail(String jws)
     {
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
-
-        Jws<Claims> claims = Jwts.parserBuilder()
-                .setSigningKey(key)
+        String email = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
                 .build()
-                .parseClaimsJws(jws);
+                .parseClaimsJws(jws)
+                .getBody()
+                .getSubject();
+
+        return email;
+    }
+
+    public Claims getClaims(String jws)
+    {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(jws)
+                .getBody();
 
         return claims;
     }
 
-    public void verifySignature(String jws, String base64EncodedSecretKey)
+    public boolean isValidToken(String jws)
     {
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
-
-        Jwts.parserBuilder()
-                .setSigningKey(key)
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(jws);
+            return true;
+        } catch (MalformedJwtException ex) {
+            log.error("Invalid JWT token");
+        } catch (ExpiredJwtException ex) {
+            log.error("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            log.error("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            log.error("JWT claims string is empty");
+        } catch (SignatureException e) {
+            log.error("there is an error with the signature of you token ");
+        }
+        return false;
     }
 
     public Date getTokenExpiration(int expirationMinutes)

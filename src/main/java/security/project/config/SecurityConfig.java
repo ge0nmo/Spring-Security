@@ -15,6 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import security.project.global.security.auth.repository.RedisRepository;
+import security.project.global.security.auth.service.AuthService;
 import security.project.global.security.filter.JwtAuthenticationFilter;
 import security.project.global.security.filter.JwtVerificationFilter;
 import security.project.global.security.handler.AuthFailureHandler;
@@ -30,6 +32,7 @@ public class SecurityConfig
 {
     private final JwtTokenizer jwtTokenizer;
     private final CustomAuthorityUtils authorityUtils;
+    private final RedisRepository redisRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception
@@ -84,7 +87,7 @@ public class SecurityConfig
         public void configure(HttpSecurity http) throws Exception
         {
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
+            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer, redisRepository);
             jwtAuthenticationFilter.setFilterProcessesUrl("/members/login");
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new AuthSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationFailureHandler(new AuthFailureHandler());

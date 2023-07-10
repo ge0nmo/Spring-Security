@@ -34,6 +34,7 @@ public class MemberMapper
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .nickname(entity.getNickname())
+                .roles(entity.getRoles())
                 .age(entity.getAge())
                 .createdAt(entity.getCreatedAt())
                 .build();
